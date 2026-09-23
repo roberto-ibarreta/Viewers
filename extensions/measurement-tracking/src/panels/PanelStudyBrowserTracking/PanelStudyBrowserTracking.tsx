@@ -95,7 +95,7 @@ export default function PanelStudyBrowserTracking({
     setViewPresets(newViewPresets);
   };
 
-  const onDoubleClickThumbnailHandler = displaySetInstanceUID => {
+  const onClickThumbnailHandler = displaySetInstanceUID => {
     let updatedViewports = [];
     const viewportId = activeViewportId;
     try {
@@ -107,7 +107,7 @@ export default function PanelStudyBrowserTracking({
     } catch (error) {
       console.warn(error);
       uiNotificationService.show({
-        title: 'Thumbnail Double Click',
+        title: 'Thumbnail Click',
         message:
           'The selected display sets could not be added to the viewport due to a mismatch in the Hanging Protocol rules.',
         type: 'error',
@@ -517,8 +517,7 @@ export default function PanelStudyBrowserTracking({
         onClickUntrack={displaySetInstanceUID => {
           onClickUntrack(displaySetInstanceUID);
         }}
-        onClickThumbnail={() => {}}
-        onDoubleClickThumbnail={onDoubleClickThumbnailHandler}
+        onClickThumbnail={onClickThumbnailHandler}
         activeDisplaySetInstanceUIDs={activeViewportDisplaySetInstanceUIDs}
         showSettings={actionIcons.find(icon => icon.id === 'settings').value}
         viewPresets={viewPresets}

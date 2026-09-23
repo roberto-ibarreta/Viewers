@@ -12,7 +12,12 @@ const tools = {
   active: [
     {
       toolName: toolNames.WindowLevel,
-      bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+      bindings: [
+        {
+          mouseButton: Enums.MouseBindings.Primary,
+          modifierKey: Enums.KeyboardBindings.Alt,
+        },
+      ],
     },
     {
       toolName: toolNames.Pan,
@@ -24,7 +29,10 @@ const tools = {
     },
     {
       toolName: toolNames.StackScroll,
-      bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+      bindings: [
+        { mouseButton: Enums.MouseBindings.Primary },
+        { mouseButton: Enums.MouseBindings.Wheel },
+      ],
     },
   ],
   enabled: [

@@ -11,6 +11,7 @@ import {
   Enums,
   utilities as cstUtils,
   ReferenceLinesTool,
+  StackScrollTool,
 } from '@cornerstonejs/tools';
 
 import { Types as OhifTypes } from '@ohif/core';
@@ -431,12 +432,21 @@ function commandsModule({
       }
 
       // Set the new toolName to be active
+      // StackScroll keeps wheel binding when restored as the primary tool
+      const bindings =
+        toolName === StackScrollTool.toolName
+          ? [
+              { mouseButton: Enums.MouseBindings.Primary },
+              { mouseButton: Enums.MouseBindings.Wheel },
+            ]
+          : [
+              {
+                mouseButton: Enums.MouseBindings.Primary,
+              },
+            ];
+
       toolGroup.setToolActive(toolName, {
-        bindings: [
-          {
-            mouseButton: Enums.MouseBindings.Primary,
-          },
-        ],
+        bindings,
       });
     },
     showDownloadViewportModal: () => {

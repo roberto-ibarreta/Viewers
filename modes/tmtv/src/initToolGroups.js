@@ -11,7 +11,12 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, mo
     active: [
       {
         toolName: toolNames.WindowLevel,
-        bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+        bindings: [
+          {
+            mouseButton: Enums.MouseBindings.Primary,
+            modifierKey: Enums.KeyboardBindings.Alt,
+          },
+        ],
       },
       {
         toolName: toolNames.Pan,
@@ -23,7 +28,10 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, mo
       },
       {
         toolName: toolNames.StackScroll,
-        bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+        bindings: [
+          { mouseButton: Enums.MouseBindings.Primary },
+          { mouseButton: Enums.MouseBindings.Wheel },
+        ],
       },
     ],
     passive: [
@@ -57,7 +65,6 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, mo
       { toolName: toolNames.Probe },
       { toolName: toolNames.EllipticalROI },
       { toolName: toolNames.RectangleROI },
-      { toolName: toolNames.StackScroll },
       { toolName: toolNames.Angle },
       { toolName: toolNames.CobbAngle },
       { toolName: toolNames.Magnify },

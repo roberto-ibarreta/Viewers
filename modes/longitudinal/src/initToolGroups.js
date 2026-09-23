@@ -29,7 +29,12 @@ function initDefaultToolGroup(
     active: [
       {
         toolName: toolNames.WindowLevel,
-        bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+        bindings: [
+          {
+            mouseButton: Enums.MouseBindings.Primary,
+            modifierKey: Enums.KeyboardBindings.Alt,
+          },
+        ],
       },
       {
         toolName: toolNames.Pan,
@@ -41,7 +46,10 @@ function initDefaultToolGroup(
       },
       {
         toolName: toolNames.StackScroll,
-        bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+        bindings: [
+          { mouseButton: Enums.MouseBindings.Primary },
+          { mouseButton: Enums.MouseBindings.Wheel },
+        ],
       },
     ],
     passive: [
@@ -76,7 +84,6 @@ function initDefaultToolGroup(
       { toolName: toolNames.EllipticalROI },
       { toolName: toolNames.CircleROI },
       { toolName: toolNames.RectangleROI },
-      { toolName: toolNames.StackScroll },
       { toolName: toolNames.Angle },
       { toolName: toolNames.CobbAngle },
       { toolName: toolNames.Magnify },
@@ -132,6 +139,7 @@ function initSRToolGroup(extensionManager, toolGroupService) {
         bindings: [
           {
             mouseButton: Enums.MouseBindings.Primary,
+            modifierKey: Enums.KeyboardBindings.Alt,
           },
         ],
       },
@@ -153,7 +161,10 @@ function initSRToolGroup(extensionManager, toolGroupService) {
       },
       {
         toolName: toolNames.StackScroll,
-        bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+        bindings: [
+          { mouseButton: Enums.MouseBindings.Primary },
+          { mouseButton: Enums.MouseBindings.Wheel },
+        ],
       },
     ],
     passive: [
@@ -192,7 +203,12 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager, m
     active: [
       {
         toolName: toolNames.WindowLevel,
-        bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+        bindings: [
+          {
+            mouseButton: Enums.MouseBindings.Primary,
+            modifierKey: Enums.KeyboardBindings.Alt,
+          },
+        ],
       },
       {
         toolName: toolNames.Pan,
@@ -204,7 +220,10 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager, m
       },
       {
         toolName: toolNames.StackScroll,
-        bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+        bindings: [
+          { mouseButton: Enums.MouseBindings.Primary },
+          { mouseButton: Enums.MouseBindings.Wheel },
+        ],
       },
     ],
     passive: [
@@ -239,7 +258,6 @@ function initMPRToolGroup(extensionManager, toolGroupService, commandsManager, m
       { toolName: toolNames.EllipticalROI },
       { toolName: toolNames.CircleROI },
       { toolName: toolNames.RectangleROI },
-      { toolName: toolNames.StackScroll },
       { toolName: toolNames.Angle },
       { toolName: toolNames.CobbAngle },
       { toolName: toolNames.PlanarFreehandROI },

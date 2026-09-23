@@ -65,7 +65,7 @@ function PanelStudyBrowser({
     setViewPresets(newViewPresets);
   };
 
-  const onDoubleClickThumbnailHandler = displaySetInstanceUID => {
+  const onClickThumbnailHandler = displaySetInstanceUID => {
     let updatedViewports = [];
     const viewportId = activeViewportId;
     try {
@@ -77,7 +77,7 @@ function PanelStudyBrowser({
     } catch (error) {
       console.warn(error);
       uiNotificationService.show({
-        title: 'Thumbnail Double Click',
+        title: 'Thumbnail Click',
         message: 'The selected display sets could not be added to the viewport.',
         type: 'error',
         duration: 3000,
@@ -303,7 +303,7 @@ function PanelStudyBrowser({
         tabs={tabs}
         servicesManager={servicesManager}
         activeTabName={activeTabName}
-        onDoubleClickThumbnail={onDoubleClickThumbnailHandler}
+        onClickThumbnail={onClickThumbnailHandler}
         activeDisplaySetInstanceUIDs={activeDisplaySetInstanceUIDs}
         expandedStudyInstanceUIDs={expandedStudyInstanceUIDs}
         onClickStudy={_handleStudyClick}

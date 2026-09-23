@@ -23,7 +23,12 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, se
     active: [
       {
         toolName: toolNames.WindowLevel,
-        bindings: [{ mouseButton: Enums.MouseBindings.Primary }],
+        bindings: [
+          {
+            mouseButton: Enums.MouseBindings.Primary,
+            modifierKey: Enums.KeyboardBindings.Alt,
+          },
+        ],
       },
       {
         toolName: toolNames.Pan,
@@ -35,7 +40,10 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, se
       },
       {
         toolName: toolNames.StackScroll,
-        bindings: [{ mouseButton: Enums.MouseBindings.Wheel }],
+        bindings: [
+          { mouseButton: Enums.MouseBindings.Primary },
+          { mouseButton: Enums.MouseBindings.Wheel },
+        ],
       },
     ],
     passive: [
@@ -48,7 +56,6 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, se
       { toolName: toolNames.RectangleROIThreshold },
       { toolName: toolNames.RectangleScissors },
       { toolName: toolNames.PaintFill },
-      { toolName: toolNames.StackScroll },
       { toolName: toolNames.Magnify },
       {
         toolName: 'CircularBrush',
@@ -101,7 +108,6 @@ function _initToolGroups(toolNames, Enums, toolGroupService, commandsManager, se
       { toolName: toolNames.CircleScissors },
       { toolName: toolNames.RectangleScissors },
       { toolName: toolNames.SphereScissors },
-      { toolName: toolNames.StackScroll },
       { toolName: toolNames.Magnify },
     ],
     enabled: [],
