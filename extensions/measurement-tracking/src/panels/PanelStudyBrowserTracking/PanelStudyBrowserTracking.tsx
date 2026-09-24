@@ -44,6 +44,7 @@ export default function PanelStudyBrowserTracking({
     measurementService,
     studyPrefetcherService,
     customizationService,
+    panelService,
   } = servicesManager.services;
   const navigate = useNavigate();
   const { mode: studyMode } = customizationService.getCustomization('PanelStudyBrowser.studyMode', {
@@ -116,6 +117,11 @@ export default function PanelStudyBrowserTracking({
     }
 
     viewportGridService.setDisplaySetsForViewports(updatedViewports);
+
+    // On mobile, close Studies so the loaded series is fully visible.
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      panelService?.closeSidePanel?.(panelService.PanelPosition.Left);
+    }
   };
 
   const activeViewportDisplaySetInstanceUIDs =

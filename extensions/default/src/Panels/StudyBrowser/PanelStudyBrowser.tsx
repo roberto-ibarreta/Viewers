@@ -21,7 +21,7 @@ function PanelStudyBrowser({
   dataSource,
   commandsManager,
 }: withAppTypes) {
-  const { hangingProtocolService, displaySetService, uiNotificationService, customizationService } =
+  const { hangingProtocolService, displaySetService, uiNotificationService, customizationService, panelService } =
     servicesManager.services;
   const navigate = useNavigate();
 
@@ -85,6 +85,11 @@ function PanelStudyBrowser({
     }
 
     viewportGridService.setDisplaySetsForViewports(updatedViewports);
+
+    // On mobile, close Studies so the loaded series is fully visible.
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      panelService?.closeSidePanel?.(panelService.PanelPosition.Left);
+    }
   };
 
   // ~~ studyDisplayList
