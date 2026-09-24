@@ -76,8 +76,8 @@ const Modal = ({
       }
       overlayClassName={
         movable
-          ? 'fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center py-16 pointer-events-none'
-          : 'fixed top-0 left-0 right-0 bottom-0 z-50 bg-overlay flex items-center justify-center py-16'
+          ? 'fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center py-4 sm:py-16 pointer-events-none'
+          : 'fixed top-0 left-0 right-0 bottom-0 z-50 bg-overlay flex items-center justify-center py-4 sm:py-16'
       }
       shouldCloseOnEsc={shouldCloseOnEsc}
       onRequestClose={handleClose}

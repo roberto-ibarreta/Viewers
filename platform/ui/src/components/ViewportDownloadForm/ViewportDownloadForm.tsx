@@ -261,7 +261,7 @@ const ViewportDownloadForm = ({
   }, [dimensions, filename, minimumSize]);
 
   return (
-    <div>
+    <div className="w-full max-w-full overflow-x-hidden">
       <Typography variant="h6">
         {t('Please specify the dimensions, filename, and desired type for the output image.')}
       </Typography>
@@ -276,8 +276,8 @@ const ViewportDownloadForm = ({
           />
           {renderErrorHandler('filename')}
         </div>
-        <div className="flex">
-          <div className="flex w-1/3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-0">
+          <div className="flex w-full sm:w-1/3">
             <div className="flex grow flex-col">
               <div className="w-full">
                 <Input
@@ -321,7 +321,7 @@ const ViewportDownloadForm = ({
             </div>
           </div>
 
-          <div className="border-secondary-dark ml-6 w-1/4 border-l pl-6">
+          <div className="border-secondary-dark w-full border-t pt-4 sm:ml-6 sm:w-1/4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
             <div>
               <InputLabelWrapper
                 sortDirection="none"
@@ -365,19 +365,22 @@ const ViewportDownloadForm = ({
 
       <div className="mt-8">
         <div
-          className="bg-secondary-dark border-secondary-primary w-max-content min-w-full rounded p-4"
+          className="bg-secondary-dark border-secondary-primary w-full max-w-full overflow-x-auto rounded p-3 sm:p-4"
           data-cy="image-preview"
         >
           <Typography variant="h5">{t('Image preview')}</Typography>
           {activeViewportElement && (
-            <div
-              className="mx-auto my-2"
-              style={{
-                height: viewportElementDimensions.height,
-                width: viewportElementDimensions.width,
-              }}
-              ref={ref => setViewportElement(ref)}
-            ></div>
+            <div className="mx-auto my-2 flex max-w-full justify-center overflow-x-auto">
+              <div
+                className="max-w-full"
+                style={{
+                  height: viewportElementDimensions.height,
+                  width: viewportElementDimensions.width,
+                  maxWidth: '100%',
+                }}
+                ref={ref => setViewportElement(ref)}
+              ></div>
+            </div>
           )}
           {!activeViewportElement && (
             <Typography className="mt-4">{t('Active viewport has no displayed image')}</Typography>
@@ -385,7 +388,7 @@ const ViewportDownloadForm = ({
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex flex-wrap justify-end gap-2">
         <Button
           name="cancel"
           type={ButtonEnums.type.secondary}
@@ -394,7 +397,6 @@ const ViewportDownloadForm = ({
           {t('Cancel')}
         </Button>
         <Button
-          className="ml-2"
           disabled={hasError}
           onClick={downloadImage}
           type={ButtonEnums.type.primary}
