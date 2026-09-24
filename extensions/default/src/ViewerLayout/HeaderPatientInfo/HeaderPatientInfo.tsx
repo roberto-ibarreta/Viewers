@@ -9,6 +9,8 @@ export enum PatientInfoVisibility {
   VISIBLE_READONLY = 'visibleReadOnly',
 }
 
+const MOBILE_BREAKPOINT_PX = 768;
+
 const formatWithEllipsis = (str, maxLength) => {
   if (str?.length > maxLength) {
     return str.substring(0, maxLength) + '...';
@@ -21,15 +23,29 @@ function HeaderPatientInfo({ servicesManager, appConfig }: withAppTypes) {
     appConfig.showPatientInfo === PatientInfoVisibility.VISIBLE ||
     appConfig.showPatientInfo === PatientInfoVisibility.VISIBLE_READONLY;
   const [expanded, setExpanded] = useState(initialExpandedState);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT_PX : false
+  );
   const { patientInfo, isMixedPatients } = usePatientInfo(servicesManager);
 
   useEffect(() => {
-    if (isMixedPatients && expanded) {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT_PX);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile || (isMixedPatients && expanded)) {
       setExpanded(false);
     }
-  }, [isMixedPatients, expanded]);
+  }, [isMobile, isMixedPatients, expanded]);
 
   const handleOnClick = () => {
+    if (isMobile) {
+      return;
+    }
     if (!isMixedPatients && appConfig.showPatientInfo !== PatientInfoVisibility.VISIBLE_READONLY) {
       setExpanded(!expanded);
     }
@@ -37,6 +53,23 @@ function HeaderPatientInfo({ servicesManager, appConfig }: withAppTypes) {
 
   const formattedPatientName = formatWithEllipsis(patientInfo.PatientName, 27);
   const formattedPatientID = formatWithEllipsis(patientInfo.PatientID, 15);
+
+  // Icon-only on mobile to avoid colliding with the primary toolbar.
+  if (isMobile) {
+    return (
+      <div
+        className="hover:bg-primary-dark flex cursor-pointer items-center justify-center rounded-lg p-1"
+        title={formattedPatientName || 'Patient'}
+        onClick={handleOnClick}
+      >
+        {isMixedPatients ? (
+          <Icons.MultiplePatients className="text-primary-active" />
+        ) : (
+          <Icons.Patient className="text-primary-active" />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div

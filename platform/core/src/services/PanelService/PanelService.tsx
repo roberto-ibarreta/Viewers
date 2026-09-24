@@ -7,6 +7,7 @@ import { ExtensionManager } from '../../extensions';
 export const EVENTS = {
   PANELS_CHANGED: 'event::panelService:panelsChanged',
   ACTIVATE_PANEL: 'event::panelService:activatePanel',
+  CLOSE_SIDE_PANEL: 'event::panelService:closeSidePanel',
 };
 
 type PanelData = {
@@ -198,6 +199,14 @@ export default class PanelService extends PubSubService {
    */
   public activatePanel(panelId: string, forceActive = false): void {
     this._broadcastEvent(EVENTS.ACTIVATE_PANEL, { panelId, forceActive });
+  }
+
+  /**
+   * Closes the side panel at the given position (left/right).
+   * Used e.g. on mobile after selecting a study thumbnail so the viewport is visible.
+   */
+  public closeSidePanel(position: PanelPosition): void {
+    this._broadcastEvent(EVENTS.CLOSE_SIDE_PANEL, { position });
   }
 
   /**

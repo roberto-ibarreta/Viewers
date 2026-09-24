@@ -152,6 +152,8 @@ const SidePanel = ({
   onClose,
   expandedWidth = 280,
   onActiveTabIndexChange,
+  /** When true, open panel overlays the viewport instead of shrinking it (mobile). */
+  overlay = false,
 }) => {
   const [panelOpen, setPanelOpen] = useState(activeTabIndexProp !== null);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -161,7 +163,30 @@ const SidePanel = ({
   const gridAvailableWidth = expandedWidth - closeIconWidth - gridHorizontalPadding;
   const gridWidth = getGridWidth(tabs.length, gridAvailableWidth);
   const openStatus = panelOpen ? 'open' : 'closed';
-  const style = Object.assign({}, styleMap[openStatus][side], baseStyle);
+
+  const style = overlay
+    ? panelOpen
+      ? {
+          position: 'absolute',
+          [side]: 0,
+          top: 0,
+          height: '100%',
+          width: `${expandedWidth}px`,
+          maxWidth: '85vw',
+          zIndex: 50,
+          marginLeft: '0px',
+          marginRight: '0px',
+        }
+      : {
+          position: 'relative',
+          width: `${collapsedWidth}px`,
+          maxWidth: `${collapsedWidth}px`,
+          top: '0.2%',
+          height: '99.8%',
+          marginLeft: '0px',
+          marginRight: '0px',
+        }
+    : Object.assign({}, styleMap[openStatus][side], baseStyle);
 
   const updatePanelOpen = useCallback(
     (panelOpen: boolean) => {
@@ -373,24 +398,37 @@ const SidePanel = ({
   };
 
   return (
-    <div
-      className={classnames(className, baseClasses, classesMap[openStatus][side])}
-      style={style}
-    >
-      {panelOpen ? (
-        <>
-          {getOpenStateComponent()}
-          {tabs.map((tab, tabIndex) => {
-            if (tabIndex === activeTabIndex) {
-              return <tab.content key={tabIndex} />;
-            }
-            return null;
-          })}
-        </>
-      ) : (
-        <React.Fragment>{getCloseStateComponent()}</React.Fragment>
-      )}
-    </div>
+    <>
+      {overlay && panelOpen ? (
+        <div
+          className="absolute inset-0 z-40 bg-black/50"
+          onClick={() => updatePanelOpen(false)}
+          aria-hidden="true"
+        />
+      ) : null}
+      <div
+        className={classnames(
+          className,
+          baseClasses,
+          overlay && panelOpen ? 'shadow-xl' : classesMap[openStatus][side]
+        )}
+        style={style}
+      >
+        {panelOpen ? (
+          <>
+            {getOpenStateComponent()}
+            {tabs.map((tab, tabIndex) => {
+              if (tabIndex === activeTabIndex) {
+                return <tab.content key={tabIndex} />;
+              }
+              return null;
+            })}
+          </>
+        ) : (
+          <React.Fragment>{getCloseStateComponent()}</React.Fragment>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -402,6 +440,7 @@ SidePanel.propTypes = {
   onClose: PropTypes.func,
   onActiveTabIndexChange: PropTypes.func,
   expandedWidth: PropTypes.number,
+  overlay: PropTypes.bool,
 };
 
 export { SidePanel };

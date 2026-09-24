@@ -9,6 +9,8 @@ export type SidePanelWithServicesProps = {
   activeTabIndex: number;
   tabs: any;
   expandedWidth?: number;
+  /** Overlay open panel over the viewport (used on narrow / mobile layouts). */
+  overlay?: boolean;
 };
 
 const SidePanelWithServices = ({
@@ -17,6 +19,7 @@ const SidePanelWithServices = ({
   activeTabIndex: activeTabIndexProp,
   tabs: tabsProp,
   expandedWidth,
+  overlay = false,
   ...props
 }: SidePanelWithServicesProps) => {
   const panelService = servicesManager?.services?.panelService;
@@ -85,6 +88,21 @@ const SidePanelWithServices = ({
     };
   }, [tabs, sidePanelOpen, panelService]);
 
+  useEffect(() => {
+    const { unsubscribe } = panelService.subscribe(
+      panelService.EVENTS.CLOSE_SIDE_PANEL,
+      ({ position }) => {
+        if (position === side) {
+          handleClose();
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [panelService, side, handleClose]);
+
   return (
     <SidePanel
       {...props}
@@ -95,6 +113,7 @@ const SidePanelWithServices = ({
       onClose={handleClose}
       onActiveTabIndexChange={handleActiveTabIndexChange}
       expandedWidth={expandedWidth}
+      overlay={overlay}
     />
   );
 };

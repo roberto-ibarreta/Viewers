@@ -8,6 +8,25 @@ import ViewerHeader from './ViewerHeader';
 import SidePanelWithServices from '../Components/SidePanelWithServices';
 import { Onboarding } from '@ohif/ui-next';
 
+/** Match Tailwind `md` — below this, use mobile viewer chrome. */
+const MOBILE_BREAKPOINT_PX = 768;
+
+function useIsMobileViewer() {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT_PX : false
+  );
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT_PX);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  return isMobile;
+}
+
 function ViewerLayout({
   // From Extension Module Params
   extensionManager,
@@ -21,6 +40,7 @@ function ViewerLayout({
   rightPanelClosed = false,
 }: withAppTypes): React.FunctionComponent {
   const [appConfig] = useAppConfig();
+  const isMobile = useIsMobileViewer();
 
   const { panelService, hangingProtocolService } = servicesManager.services;
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(appConfig.showLoadingIndicator);
@@ -48,6 +68,17 @@ function ViewerLayout({
       document.body.classList.remove('overflow-hidden');
     };
   }, []);
+
+  // On narrow screens, keep side panels closed so the DICOM viewport gets the width.
+  useEffect(() => {
+    if (isMobile) {
+      setLeftPanelClosed(true);
+      setRightPanelClosed(true);
+    } else {
+      setLeftPanelClosed(leftPanelClosed);
+      setRightPanelClosed(rightPanelClosed);
+    }
+  }, [isMobile, leftPanelClosed, rightPanelClosed]);
 
   const getComponent = id => {
     const entry = extensionManager.getModuleEntry(id);
@@ -110,17 +141,14 @@ function ViewerLayout({
   const viewportComponents = viewports.map(getViewportComponentData);
 
   return (
-    <div>
+    <div className="flex h-screen flex-col overflow-hidden">
       <ViewerHeader
         hotkeysManager={hotkeysManager}
         extensionManager={extensionManager}
         servicesManager={servicesManager}
         appConfig={appConfig}
       />
-      <div
-        className="relative flex w-full flex-row flex-nowrap items-stretch overflow-hidden bg-black"
-        style={{ height: 'calc(100vh - 52px' }}
-      >
+      <div className="relative flex min-h-0 w-full flex-1 flex-row flex-nowrap items-stretch overflow-hidden bg-black">
         <React.Fragment>
           {showLoadingIndicator && <LoadingIndicatorProgress className="h-full w-full bg-black" />}
           {/* LEFT SIDEPANELS */}
@@ -129,6 +157,7 @@ function ViewerLayout({
               side="left"
               activeTabIndex={leftPanelClosedState ? null : 0}
               servicesManager={servicesManager}
+              overlay={isMobile}
             />
           ) : null}
           {/* TOOLBAR + GRID */}
@@ -146,6 +175,7 @@ function ViewerLayout({
               side="right"
               activeTabIndex={rightPanelClosedState ? null : 0}
               servicesManager={servicesManager}
+              overlay={isMobile}
             />
           ) : null}
         </React.Fragment>
