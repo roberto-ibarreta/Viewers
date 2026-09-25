@@ -31,7 +31,7 @@ const ToolbarButton = ({
     toolTipClassName !== undefined
       ? toolTipClassName
       : sizeToUse === 'toolbar'
-        ? 'w-[40px] h-[40px]'
+        ? 'w-[40px] h-[40px] md:w-[52px] md:h-[52px]'
         : 'w-[32px] h-[32px]';
 
   return (

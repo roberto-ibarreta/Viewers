@@ -56,14 +56,15 @@ const sizeClasses = {
   medium: 'py-3 px-3 text-lg',
   large: 'py-4 px-4 text-xl',
   initial: '',
-  toolbar: 'text-lg',
+  toolbar: 'text-lg md:text-xl',
 };
 
 const iconSizeClasses = {
   small: 'w-4 h-4',
   medium: 'w-5 h-5',
   large: 'w-6 h-6',
-  toolbar: 'w-[28px] h-[28px]',
+  // Mobile keeps original 28px; desktop uses 130% (36px)
+  toolbar: 'w-[28px] h-[28px] md:w-[36px] md:h-[36px]',
   toolbox: 'w-[24px] h-[24px]',
 };
 
@@ -93,7 +94,9 @@ const IconButton = ({
     onClick(e);
   };
 
-  const padding = size === 'toolbar' ? '6px' : size === 'toolbox' ? '4px' : null;
+  const padding = size === 'toolbox' ? '4px' : null;
+  // Toolbar: original 6px on mobile, 130% (8px) from md up
+  const toolbarPaddingClass = size === 'toolbar' ? 'p-[6px] md:p-[8px]' : null;
 
   return (
     <button
@@ -104,6 +107,7 @@ const IconButton = ({
         sizeClasses[size],
         fullWidthClasses[fullWidth],
         disabledClasses[disabled],
+        toolbarPaddingClass,
         className
       )}
       style={{

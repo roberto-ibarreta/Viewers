@@ -12,10 +12,10 @@ const baseClasses = {
   Button: 'flex items-center rounded-md border-transparent group/button',
   Primary: 'h-full rounded-tl-md rounded-bl-md group/primary',
   Secondary:
-    'h-full flex items-center justify-center rounded-tr-md rounded-br-md w-4 border-2 border-transparent group/secondary',
-  SecondaryIcon: 'w-4 h-full stroke-1',
+    'h-full flex items-center justify-center rounded-tr-md rounded-br-md w-4 md:w-5 border-2 border-transparent group/secondary',
+  SecondaryIcon: 'w-4 md:w-5 h-full stroke-1',
   Separator: 'border-l py-3 ml-0.5',
-  Content: 'absolute z-10 top-0 mt-12',
+  Content: 'absolute z-10 top-0 mt-12 md:mt-14',
 };
 
 const classes = {
@@ -73,7 +73,7 @@ const DefaultListItemRenderer = props => {
         <span className="mr-4">
           <Icon
             name={icon}
-            className="h-[28px] w-[28px]"
+            className="h-[28px] w-[28px] md:h-[36px] md:w-[36px]"
           />
         </span>
       )}
@@ -120,8 +120,7 @@ const SplitButton = ({
         className="relative"
       >
         <div
-          className={classes.Button({ ...state })}
-          style={{ height: '40px' }}
+          className={classNames(classes.Button({ ...state }), 'h-[40px] md:h-[52px]')}
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
         >

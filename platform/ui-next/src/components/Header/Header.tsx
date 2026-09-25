@@ -52,7 +52,7 @@ function Header({
       isSticky={isSticky}
       {...props}
     >
-      <div className="flex flex-col gap-1 px-1 py-1 md:h-[48px] md:flex-row md:items-center md:gap-2 md:py-0">
+      <div className="flex flex-col gap-1 px-1 py-1 md:h-[60px] md:flex-row md:items-center md:gap-2 md:py-0">
         {/* Chrome row: back/logo + patient/settings */}
         <div className="flex shrink-0 items-center justify-between gap-1 md:contents">
           <div className="flex shrink-0 items-center">
