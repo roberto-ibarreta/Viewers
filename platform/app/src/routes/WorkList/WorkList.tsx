@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import filtersMeta from './filtersMeta.js';
 import { useAppConfig } from '@state';
 import { useDebounce, useSearchParams } from '@hooks';
-import { utils, hotkeys } from '@ohif/core';
+import { utils } from '@ohif/core';
 
 import {
   Icon,
@@ -21,8 +21,6 @@ import {
   StudyListFilter,
   TooltipClipboard,
   useModal,
-  AboutModal,
-  UserPreferences,
   LoadingIndicatorProgress,
   useSessionStorage,
   InvestigationalUseDialog,
@@ -34,14 +32,11 @@ import { Header } from '@ohif/ui-next';
 
 import { Types } from '@ohif/ui';
 
-import i18n from '@ohif/i18n';
 import { Onboarding, ScrollArea } from '@ohif/ui-next';
 
 const PatientInfoVisibility = Types.PatientInfoVisibility;
 
 const { sortBySeriesDate } = utils;
-
-const { availableLanguages, defaultLanguage, currentLanguage } = i18n;
 
 const seriesInStudiesMap = new Map();
 
@@ -54,12 +49,10 @@ function WorkList({
   dataTotal: studiesTotal,
   isLoadingData,
   dataSource,
-  hotkeysManager,
   dataPath,
   onRefresh,
   servicesManager,
 }: withAppTypes) {
-  const { hotkeyDefinitions, hotkeyDefaults } = hotkeysManager;
   const { show, hide } = useModal();
   const { t } = useTranslation();
   // ~ Modes
@@ -444,58 +437,8 @@ function WorkList({
   });
 
   const hasStudies = numOfStudies > 0;
-  const versionNumber = process.env.VERSION_NUMBER;
-  const commitHash = process.env.COMMIT_HASH;
 
-  const menuOptions = [
-    {
-      title: t('Header:About'),
-      icon: 'info',
-      onClick: () =>
-        show({
-          content: AboutModal,
-          title: t('AboutModal:About OHIF Viewer'),
-          contentProps: { versionNumber, commitHash },
-          containerDimensions: 'max-w-4xl max-h-4xl',
-        }),
-    },
-    {
-      title: t('Header:Preferences'),
-      icon: 'settings',
-      onClick: () =>
-        show({
-          title: t('UserPreferencesModal:User preferences'),
-          content: UserPreferences,
-          contentProps: {
-            hotkeyDefaults: hotkeysManager.getValidHotkeyDefinitions(hotkeyDefaults),
-            hotkeyDefinitions,
-            onCancel: hide,
-            currentLanguage: currentLanguage(),
-            availableLanguages,
-            defaultLanguage,
-            onSubmit: state => {
-              if (state.language.value !== currentLanguage().value) {
-                i18n.changeLanguage(state.language.value);
-              }
-              hotkeysManager.setHotkeys(state.hotkeyDefinitions);
-              hide();
-            },
-            onReset: () => hotkeysManager.restoreDefaultBindings(),
-            hotkeysModule: hotkeys,
-          },
-        }),
-    },
-  ];
-
-  if (appConfig.oidc) {
-    menuOptions.push({
-      icon: 'power-off',
-      title: t('Header:Logout'),
-      onClick: () => {
-        navigate(`/logout?redirect_uri=${encodeURIComponent(window.location.href)}`);
-      },
-    });
-  }
+  const menuOptions = [];
 
   const { customizationService } = servicesManager.services;
   const { component: DicomUploadComponent } =

@@ -66,51 +66,61 @@ function Header({
             >
               {isReturnEnabled && <Icons.ChevronPatient className="text-primary-active w-8" />}
               <div className="ml-1 hidden max-w-[140px] truncate sm:block md:block">
-                {WhiteLabeling?.createLogoComponentFn?.(React, props) || <Icons.OHIFLogo />}
+                {WhiteLabeling?.createLogoComponentFn
+                  ? WhiteLabeling.createLogoComponentFn(React, props)
+                  : <Icons.OHIFLogo />}
               </div>
             </div>
           </div>
 
-          <div className="flex shrink-0 select-none items-center md:order-last">
-            {PatientInfo ? (
-              <div className="max-w-[120px] truncate sm:max-w-none">{PatientInfo}</div>
-            ) : null}
-            <div className="border-primary-dark mx-1.5 h-[25px] border-r"></div>
-            <div className="flex-shrink-0">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-primary-active hover:bg-primary-dark mt-2 h-full w-full"
-                  >
-                    <Icons.GearSettings />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {menuOptions.map((option, index) => {
-                    const IconComponent = option.icon
-                      ? Icons[option.icon as keyof typeof Icons]
-                      : null;
-                    return (
-                      <DropdownMenuItem
-                        key={index}
-                        onSelect={option.onClick}
-                        className="flex items-center gap-2 py-2"
+          {(PatientInfo || (menuOptions && menuOptions.length > 0)) && (
+            <div className="flex shrink-0 select-none items-center md:order-last">
+              {PatientInfo ? (
+                <>
+                  <div className="max-w-[120px] truncate sm:max-w-none">{PatientInfo}</div>
+                  {menuOptions?.length > 0 && (
+                    <div className="border-primary-dark mx-1.5 h-[25px] border-r"></div>
+                  )}
+                </>
+              ) : null}
+              {menuOptions?.length > 0 && (
+                <div className="flex-shrink-0">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-primary-active hover:bg-primary-dark mt-2 h-full w-full"
                       >
-                        {IconComponent && (
-                          <span className="flex h-4 w-4 items-center justify-center">
-                            <IconComponent className="h-full w-full" />
-                          </span>
-                        )}
-                        <span className="flex-1">{option.title}</span>
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                        <Icons.GearSettings />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {menuOptions.map((option, index) => {
+                        const IconComponent = option.icon
+                          ? Icons[option.icon as keyof typeof Icons]
+                          : null;
+                        return (
+                          <DropdownMenuItem
+                            key={index}
+                            onSelect={option.onClick}
+                            className="flex items-center gap-2 py-2"
+                          >
+                            {IconComponent && (
+                              <span className="flex h-4 w-4 items-center justify-center">
+                                <IconComponent className="h-full w-full" />
+                              </span>
+                            )}
+                            <span className="flex-1">{option.title}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Tools: Toolbar balances into equal rows on mobile */}

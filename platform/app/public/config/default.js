@@ -10,6 +10,12 @@ window.config = {
   investigationalUseDialog: {
     option: 'never',
   },
+  whiteLabeling: {
+    createLogoComponentFn: function () {
+      return null;
+    },
+  },
+  showPatientInfo: 'disabled',
   // some windows systems have issues with more than 3 web workers
   maxNumberOfWebWorkers: 3,
   // below flag is for performance reasons, but it might not work for all servers
