@@ -6,25 +6,63 @@ import {
   getOrCreateCanvas,
   StackViewport,
   BaseVolumeViewport,
+  metaData,
 } from '@cornerstonejs/core';
 import { ToolGroupManager } from '@cornerstonejs/tools';
 import { ViewportDownloadForm } from '@ohif/ui';
+import dicomImageLoader from '@cornerstonejs/dicom-image-loader';
 
 import { getEnabledElement as OHIFgetEnabledElement } from '../state';
+import dicomLoaderService from './dicomLoaderService';
+import buildDicomBlobFromImageId from './buildDicomBlobFromImageId';
 
 const MINIMUM_SIZE = 100;
 const DEFAULT_SIZE = 512;
 const MAX_TEXTURE_SIZE = 10000;
 const VIEWPORT_ID = 'cornerstone-viewport-download-form';
 
+const getNormalizedFileType = fileType => (Array.isArray(fileType) ? fileType[0] : fileType);
+
+const getViewportImageId = viewport => {
+  if (!viewport) {
+    return;
+  }
+
+  if (typeof viewport.getCurrentImageId === 'function') {
+    const imageId = viewport.getCurrentImageId();
+    if (imageId) {
+      return imageId;
+    }
+  }
+
+  if (typeof viewport.getImageIds === 'function') {
+    const imageIds = viewport.getImageIds();
+    const sliceIndex = viewport.getSliceIndex?.() ?? 0;
+    return imageIds?.[sliceIndex];
+  }
+};
+
+const triggerBrowserDownload = (blob, filename) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
 const CornerstoneViewportDownloadForm = ({
   onClose,
   activeViewportId: activeViewportIdProp,
   cornerstoneViewportService,
+  servicesManager,
 }: withAppTypes) => {
   const enabledElement = OHIFgetEnabledElement(activeViewportIdProp);
   const activeViewportElement = enabledElement?.element;
   const activeViewportEnabledElement = getEnabledElement(activeViewportElement);
+  const { uiNotificationService, userAuthenticationService } = servicesManager?.services || {};
 
   const {
     viewportId: activeViewportId,
@@ -214,8 +252,81 @@ const CornerstoneViewportDownloadForm = ({
     });
   };
 
-  const downloadBlob = (filename, fileType) => {
-    const file = `${filename}.${fileType}`;
+  const downloadDicomInstance = async filename => {
+    const imageId = getViewportImageId(activeViewport);
+
+    if (!imageId) {
+      throw new Error('No image is available in the active viewport');
+    }
+
+    // Local files already have a Part 10 blob available
+    if (imageId.startsWith('dicomfile:')) {
+      const arrayBuffer = await dicomImageLoader.wadouri.loadFileRequest(imageId);
+      if (!arrayBuffer) {
+        throw new Error('Unable to retrieve DICOM instance data');
+      }
+      triggerBrowserDownload(new Blob([arrayBuffer], { type: 'application/dicom' }), `${filename}.dcm`);
+      return;
+    }
+
+    const instance = metaData.get('instance', imageId);
+    const headers = userAuthenticationService?.getAuthorizationHeader?.();
+
+    // Prefer a server Part 10 retrieve when the data source actually hosts it
+    // (real Orthanc/dcm4chee). Static WADO / S3 often returns 403 here because
+    // only metadata + frames are published — fall back to rebuilding Part 10.
+    if (instance?.StudyInstanceUID && instance?.SeriesInstanceUID && instance?.SOPInstanceUID) {
+      try {
+        const arrayBuffer = await dicomLoaderService.findDicomDataPromise(
+          {
+            StudyInstanceUID: instance.StudyInstanceUID,
+            SeriesInstanceUID: instance.SeriesInstanceUID,
+            SOPInstanceUID: instance.SOPInstanceUID,
+            wadoRoot: instance.wadoRoot,
+            wadoUri: instance.wadoUri || instance.url,
+            instance,
+          },
+          null,
+          headers
+        );
+
+        if (arrayBuffer) {
+          triggerBrowserDownload(
+            new Blob([arrayBuffer], { type: 'application/dicom' }),
+            `${filename}.dcm`
+          );
+          return;
+        }
+      } catch (error) {
+        console.warn(
+          'WADO instance retrieve unavailable; rebuilding DICOM from metadata and pixel data',
+          error
+        );
+      }
+    }
+
+    const blob = await buildDicomBlobFromImageId(imageId);
+    triggerBrowserDownload(blob, `${filename}.dcm`);
+  };
+
+  const downloadBlob = async (filename, fileType) => {
+    const type = getNormalizedFileType(fileType);
+
+    if (type === 'dicom') {
+      try {
+        await downloadDicomInstance(filename);
+      } catch (error) {
+        console.error(error);
+        uiNotificationService?.show({
+          title: 'Download DICOM',
+          message: error?.message || 'Unable to download DICOM instance',
+          type: 'error',
+        });
+      }
+      return;
+    }
+
+    const file = `${filename}.${type}`;
     const divForDownloadViewport = document.querySelector(
       `div[data-viewport-uid="${VIEWPORT_ID}"]`
     );
@@ -223,7 +334,9 @@ const CornerstoneViewportDownloadForm = ({
     html2canvas(divForDownloadViewport).then(canvas => {
       const link = document.createElement('a');
       link.download = file;
-      link.href = canvas.toDataURL(fileType, 1.0);
+      // browsers expect image/jpeg rather than image/jpg
+      const mimeType = type === 'jpg' ? 'image/jpeg' : `image/${type}`;
+      link.href = canvas.toDataURL(mimeType, 1.0);
       link.click();
     });
   };

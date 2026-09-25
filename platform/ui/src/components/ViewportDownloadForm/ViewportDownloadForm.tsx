@@ -19,6 +19,10 @@ const FILE_TYPE_OPTIONS = [
     value: 'png',
     label: 'png',
   },
+  {
+    value: 'dicom',
+    label: 'dicom',
+  },
 ];
 
 const DEFAULT_FILENAME = 'image';
@@ -82,6 +86,8 @@ const ViewportDownloadForm = ({
   });
 
   const hasError = Object.values(error).includes(true);
+  const selectedFileType = Array.isArray(fileType) ? fileType[0] : fileType;
+  const isDicomDownload = selectedFileType === 'dicom';
 
   const refreshViewport = useRef(null);
 
@@ -226,6 +232,10 @@ const ViewportDownloadForm = ({
   }, [disableViewport, enableViewport, viewportElement]);
 
   useEffect(() => {
+    if (isDicomDownload) {
+      return;
+    }
+
     if (refreshViewport.current !== null) {
       clearTimeout(refreshViewport.current);
     }
@@ -247,23 +257,26 @@ const ViewportDownloadForm = ({
     minimumSize,
     maximumSize,
     loadAndUpdateViewports,
+    isDicomDownload,
   ]);
 
   useEffect(() => {
     const { width, height } = dimensions;
     const hasError = {
-      width: width < minimumSize,
-      height: height < minimumSize,
+      width: isDicomDownload ? false : width < minimumSize,
+      height: isDicomDownload ? false : height < minimumSize,
       filename: !filename,
     };
 
     setError({ ...hasError });
-  }, [dimensions, filename, minimumSize]);
+  }, [dimensions, filename, minimumSize, isDicomDownload]);
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
       <Typography variant="h6">
-        {t('Please specify the dimensions, filename, and desired type for the output image.')}
+        {isDicomDownload
+          ? t('Please specify the filename for the DICOM download.')
+          : t('Please specify the dimensions, filename, and desired type for the output image.')}
       </Typography>
 
       <div className="mt-6 flex flex-col">
@@ -277,51 +290,59 @@ const ViewportDownloadForm = ({
           {renderErrorHandler('filename')}
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-0">
-          <div className="flex w-full sm:w-1/3">
-            <div className="flex grow flex-col">
-              <div className="w-full">
-                <Input
-                  type="number"
-                  min={minimumSize}
-                  max={maximumSize}
-                  label={t('Image width (px)')}
-                  value={dimensions.width}
-                  onChange={evt => onDimensionsChange(evt.target.value, 'width')}
-                  data-cy="image-width"
-                />
-                {renderErrorHandler('width')}
+          {!isDicomDownload && (
+            <div className="flex w-full sm:w-1/3">
+              <div className="flex grow flex-col">
+                <div className="w-full">
+                  <Input
+                    type="number"
+                    min={minimumSize}
+                    max={maximumSize}
+                    label={t('Image width (px)')}
+                    value={dimensions.width}
+                    onChange={evt => onDimensionsChange(evt.target.value, 'width')}
+                    data-cy="image-width"
+                  />
+                  {renderErrorHandler('width')}
+                </div>
+                <div className="mt-4 w-full">
+                  <Input
+                    type="number"
+                    min={minimumSize}
+                    max={maximumSize}
+                    label={t('Image height (px)')}
+                    value={dimensions.height}
+                    onChange={evt => onDimensionsChange(evt.target.value, 'height')}
+                    data-cy="image-height"
+                  />
+                  {renderErrorHandler('height')}
+                </div>
               </div>
-              <div className="mt-4 w-full">
-                <Input
-                  type="number"
-                  min={minimumSize}
-                  max={maximumSize}
-                  label={t('Image height (px)')}
-                  value={dimensions.height}
-                  onChange={evt => onDimensionsChange(evt.target.value, 'height')}
-                  data-cy="image-height"
-                />
-                {renderErrorHandler('height')}
-              </div>
-            </div>
 
-            <div className="mt-8 flex items-center">
-              <Tooltip
-                position="right"
-                content={keepAspect ? 'Dismiss Aspect' : 'Keep Aspect'}
-              >
-                <IconButton
-                  onClick={onKeepAspectToggle}
-                  size="small"
-                  rounded="full"
+              <div className="mt-8 flex items-center">
+                <Tooltip
+                  position="right"
+                  content={keepAspect ? 'Dismiss Aspect' : 'Keep Aspect'}
                 >
-                  <Icon name={keepAspect ? 'link' : 'unlink'} />
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    onClick={onKeepAspectToggle}
+                    size="small"
+                    rounded="full"
+                  >
+                    <Icon name={keepAspect ? 'link' : 'unlink'} />
+                  </IconButton>
+                </Tooltip>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="border-secondary-dark w-full border-t pt-4 sm:ml-6 sm:w-1/4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+          <div
+            className={`w-full ${
+              isDicomDownload
+                ? ''
+                : 'border-secondary-dark border-t pt-4 sm:ml-6 sm:w-1/4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0'
+            }`}
+          >
             <div>
               <InputLabelWrapper
                 sortDirection="none"
@@ -343,22 +364,24 @@ const ViewportDownloadForm = ({
                 />
               </InputLabelWrapper>
             </div>
-            <div className="mt-4 ml-2">
-              <label
-                htmlFor="show-annotations"
-                className="flex items-center"
-              >
-                <input
-                  id="show-annotations"
-                  data-cy="show-annotations"
-                  type="checkbox"
-                  className="mr-2"
-                  checked={showAnnotations}
-                  onChange={event => setShowAnnotations(event.target.checked)}
-                />
-                <Typography>{t('Show Annotations')}</Typography>
-              </label>
-            </div>
+            {!isDicomDownload && (
+              <div className="mt-4 ml-2">
+                <label
+                  htmlFor="show-annotations"
+                  className="flex items-center"
+                >
+                  <input
+                    id="show-annotations"
+                    data-cy="show-annotations"
+                    type="checkbox"
+                    className="mr-2"
+                    checked={showAnnotations}
+                    onChange={event => setShowAnnotations(event.target.checked)}
+                  />
+                  <Typography>{t('Show Annotations')}</Typography>
+                </label>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -368,22 +391,36 @@ const ViewportDownloadForm = ({
           className="bg-secondary-dark border-secondary-primary w-full max-w-full overflow-x-auto rounded p-3 sm:p-4"
           data-cy="image-preview"
         >
-          <Typography variant="h5">{t('Image preview')}</Typography>
-          {activeViewportElement && (
-            <div className="mx-auto my-2 flex max-w-full justify-center overflow-x-auto">
-              <div
-                className="max-w-full"
-                style={{
-                  height: viewportElementDimensions.height,
-                  width: viewportElementDimensions.width,
-                  maxWidth: '100%',
-                }}
-                ref={ref => setViewportElement(ref)}
-              ></div>
-            </div>
-          )}
-          {!activeViewportElement && (
-            <Typography className="mt-4">{t('Active viewport has no displayed image')}</Typography>
+          <Typography variant="h5">
+            {isDicomDownload ? t('DICOM download') : t('Image preview')}
+          </Typography>
+          {isDicomDownload ? (
+            <Typography className="mt-4">
+              {t(
+                'The DICOM instance for the current image will be downloaded. If the server does not provide original Part 10 files, a DICOM file will be rebuilt from the loaded image data.'
+              )}
+            </Typography>
+          ) : (
+            <>
+              {activeViewportElement && (
+                <div className="mx-auto my-2 flex max-w-full justify-center overflow-x-auto">
+                  <div
+                    className="max-w-full"
+                    style={{
+                      height: viewportElementDimensions.height,
+                      width: viewportElementDimensions.width,
+                      maxWidth: '100%',
+                    }}
+                    ref={ref => setViewportElement(ref)}
+                  ></div>
+                </div>
+              )}
+              {!activeViewportElement && (
+                <Typography className="mt-4">
+                  {t('Active viewport has no displayed image')}
+                </Typography>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -472,6 +472,7 @@ function commandsModule({
             activeViewportId,
             onClose: uiModalService.hide,
             cornerstoneViewportService,
+            servicesManager,
           },
           containerDimensions: 'w-[95%] max-w-[900px] sm:w-[70%]',
           contentDimensions:
